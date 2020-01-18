@@ -1,0 +1,63 @@
+#!/bin/sh -e
+#
+# 2014-2017 Steven Armstrong (steven-cdist at armstrong.cc)
+#
+# This file is part of cdist.
+#
+# cdist is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# cdist is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with cdist. If not, see <http://www.gnu.org/licenses/>.
+#
+
+if [ -f "$__object/parameter/name" ]; then
+   name="$(cat "$__object/parameter/name")"
+else
+   name="$__object_id"
+fi
+
+state_is="$(cat "$__object/explorer/state")"
+state_should="enabled"
+if [ -f "$__object/parameter/no-enable" ]; then
+   state_should="ignore"
+fi
+if [ -f "$__object/parameter/disabled" ]; then
+   state_should="disabled"
+fi
+if [ "$state_should" != "$state_is" ]; then
+   case "$state_should" in
+      enabled)
+         cat "$__object/explorer/enable-command"
+      ;;
+      disabled)
+         cat "$__object/explorer/disable-command"
+      ;;
+   esac
+fi
+
+status_is="$(cat "$__object/explorer/status")"
+status_should="running"
+if [ -f "$__object/parameter/no-start" ]; then
+   status_should="ignore"
+fi
+if [ -f "$__object/parameter/stopped" ]; then
+   status_should="stopped"
+fi
+if [ "$status_should" != "$status_is" ]; then
+   case "$status_should" in
+      running)
+         cat "$__object/explorer/start-command"
+      ;;
+      stopped)
+         cat "$__object/explorer/stop-command"
+      ;;
+   esac
+fi

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if ls -l /sbin/init | grep systemd; then
+   echo systemd
+else
+   echo unknown
+fi
+

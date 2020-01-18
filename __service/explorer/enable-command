@@ -1,0 +1,44 @@
+#!/bin/sh
+#
+# 2016 Steven Armstrong (steven-cdist at armstrong.cc)
+#
+# This file is part of cdist.
+#
+# cdist is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# cdist is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with cdist. If not, see <http://www.gnu.org/licenses/>.
+#
+
+if [ -f "$__object/parameter/name" ]; then
+   name="$(cat "$__object/parameter/name")"
+else
+   name="$__object_id"
+fi
+
+action="enable"
+
+if [ -f "$__object/parameter/$action-command" ]; then
+   cat "$__object/parameter/$action-command"
+   exit 0
+fi
+
+if command -v systemctl >/dev/null; then
+   printf 'systemctl %s %s\n' "$action" "$name"
+elif command -v chkconfig >/dev/null; then
+   printf 'chkconfig %s on\n' "$name"
+elif command -v update-rc.d >/dev/null; then
+   printf 'update-rc.d %s defaults\n' "$name"
+else
+   echo "Don't know how to enable a service on your operating system ($("$__explorer/os"))" >&2
+   echo "Please contribute an implementation for it if you can." >&2
+   exit 1
+fi

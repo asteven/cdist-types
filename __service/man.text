@@ -1,0 +1,96 @@
+cdist-type__service(7)
+======================
+Steven Armstrong <steven-cdist--@--armstrong.cc>
+
+
+NAME
+----
+cdist-type__service - manage a service
+
+
+DESCRIPTION
+-----------
+Uses the underlying init system to manage a services state.
+To workaround broken init scripts or systems the optional *-command
+parameters can be used to customize the actions triggered by this type.
+
+REQUIRED PARAMETERS
+-------------------
+None.
+
+
+OPTIONAL PARAMETERS
+-------------------
+disable-command::
+   shell code that disables the service.
+enable-command::
+   shell code that enables the service.
+name::
+   the name of the service. Defaults to __object_id
+reload-command::
+   shell code that reloads the service.
+restart-command::
+   shell code that restarts the service.
+start-command::
+   shell code that starts the service.
+state-command::
+   shell code that determines the current state of the service.
+   The return code of executing the given code should be 0 if the service is
+   enabled or 1 if the service is disabled.
+status-command::
+   shell code that determines the current status of the service.
+   The return code of executing the given code should be 0 if the service is
+   running or 1 if the service is not running.
+stop-command::
+   shell code that stops the service.
+
+
+BOOLEAN PARAMETERS
+------------------
+disabled::
+   the service should be disabled instead of enabled.
+no-enable::
+   do not enable the service.
+no-start::
+   do not start the service.
+stopped::
+   the service should be stopped instead of running.
+
+
+EXAMPLES
+--------
+
+--------------------------------------------------------------------------------
+# Service should be enabled
+__service sshd
+
+# Service has different name on other distro
+__service sshd \
+   --name ssh
+
+# Service should not be started on boot
+__service sshd \
+   --disabled
+
+# Service should be enabled but don't start it right now
+__service network-wait-online --no-start
+
+# Service should be stopped
+__service sshd \
+   --stopped
+
+# Deal with crappy init script
+__service open-vm-tools \
+   --status-command 'start-stop-daemon --name vmtoolsd --status'
+--------------------------------------------------------------------------------
+
+
+SEE ALSO
+--------
+- cdist-type(7)
+- cdist-type__start_on_boot(7)
+
+COPYING
+-------
+Copyright \(C) 2014-2016 Steven Armstrong. Free use of this software is
+granted under the terms of the GNU General Public License version 3 (GPLv3).

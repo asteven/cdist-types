@@ -1,0 +1,61 @@
+cdist-type__systemd_unit(7)
+===========================
+Steven Armstrong <steven-cdist--@--armstrong.cc>
+
+
+NAME
+----
+cdist-type__systemd_unit - manage a systemd unit file
+
+
+DESCRIPTION
+-----------
+Manages a systemd unit file and reloads systemd on changes.
+
+
+REQUIRED PARAMETERS
+-------------------
+source::
+   path to the unit file or '-' to read config from stdin
+
+
+OPTIONAL PARAMETERS
+-------------------
+destination::
+   path to the destination of the unit file.
+   Defaults to /etc/systemd/system/$__object_id
+state::
+   present or absent, defaults to present
+
+
+EXAMPLES
+--------
+
+--------------------------------------------------------------------------------
+__systemd_unit unit-file.service \
+   --source /path/to/unit-file
+__systemd_unit some-fs.mount \
+   --source /path/to/unit-file
+
+__directory /etc/systemd/system/sssd.service.d \
+   --owner root --group root --mode 0755
+require="__directory/etc/systemd/system/sssd.service.d"
+   __systemd_unit some-name \
+      --destination /etc/systemd/system/sssd.service.d/depend-on-network-online.conf \
+      --source - << DONE
+[Unit]
+After=network-online.target
+Wants=network-online.target
+DONE
+--------------------------------------------------------------------------------
+
+
+SEE ALSO
+--------
+- cdist-type(7)
+
+
+COPYING
+-------
+Copyright \(C) 2017 Steven Armstrong. Free use of this software is
+granted under the terms of the GNU General Public License version 3 (GPLv3).

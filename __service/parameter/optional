@@ -1,0 +1,8 @@
+disable-command
+enable-command
+name
+reload-command
+restart-command
+start--command
+status-command
+stop-command

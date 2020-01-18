@@ -1,0 +1,66 @@
+#!/bin/sh
+#
+# 2014-2015 Steven Armstrong (steven-cdist at armstrong.cc)
+#
+# This file is part of cdist.
+#
+# cdist is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# cdist is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with cdist. If not, see <http://www.gnu.org/licenses/>.
+#
+
+if [ -f "$__object/parameter/name" ]; then
+   name="$(cat "$__object/parameter/name")"
+else
+   name="$__object_id"
+fi
+
+action="state"
+if [ -f "$__object/parameter/$action-command" ]; then
+   if $("__object/parameter/$action-command") >/dev/null; then
+      echo enabled
+   else
+      echo disabled
+   fi
+   exit 0
+fi
+
+if command -v systemctl >/dev/null; then
+   systemctl is-enabled "$name" >/dev/null 2>&1 \
+      && echo enabled \
+      || echo disabled
+elif command -v chkconfig >/dev/null; then
+   chkconfig "$name" >/dev/null 2>&1 \
+      && echo enabled \
+      || echo disabled
+else
+   os=$("$__explorer/os")
+   runlevel=$("$__explorer/runlevel")
+   case "$os" in
+      debian|openwrt)
+         state="disabled"
+         [ -f "/etc/rc$runlevel.d/S"??"$name" ] && state="enabled"
+         echo "$state"
+      ;;
+      ubuntu)
+         state="disabled"
+         [ -f "/etc/rc$runlevel.d/S"??"$name" ] && state="enabled"
+         [ -f "/etc/init/${name}.conf" ] && state="enabled"
+         echo "$state"
+      ;;
+      *)
+         echo "Don't know the command to check the state of a service on your operating system ($("$__explorer/os"))" >&2
+         echo "Please contribute an implementation for it if you can." >&2
+         exit 1
+      ;;
+   esac
+fi
